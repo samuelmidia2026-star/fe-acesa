@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="Seu momento diário com Deus.">
+<title>Fé Acesa</title>
+<style>
+:root{color-scheme:dark;--bg:#101522;--card:#1b2434;--orange:#f49a45;--text:#f8fafc;--muted:#b8c2d3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
+header{padding:25px 20px 16px;display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;background:var(--orange);color:#151a25;border-radius:15px;display:grid;place-items:center;font-size:25px}
+h1{font-size:21px;margin:0}header p{margin:3px 0 0;color:var(--muted);font-size:12px}
+main{max-width:600px;margin:auto;padding:8px 18px 35px}
+.welcome{padding:20px 2px 15px}
+.welcome small,.label{color:var(--orange);font-weight:700;letter-spacing:1px;font-size:11px;text-transform:uppercase}
+h2{font-size:29px;line-height:1.2;margin:9px 0}
+.muted{color:var(--muted);line-height:1.6;font-size:14px}
+.card{background:var(--card);border:1px solid #303a4c;border-radius:20px;padding:20px;margin:13px 0}
+.verse{font-size:20px;line-height:1.6;margin:13px 0}
+.reference{font-size:13px;color:var(--orange)}
+.prayer{font-size:15px;line-height:1.8}
+button{border:0;border-radius:13px;padding:14px 16px;font-weight:700;font-size:14px;cursor:pointer}
+.primary{width:100%;background:var(--orange);color:#171923;margin-top:14px}
+.secondary{background:#303a4c;color:white}
+.quote{font-size:19px;line-height:1.5}
+.progress{height:7px;border-radius:9px;background:#303a4c;overflow:hidden;margin:12px 0}
+.progress div{height:100%;width:0;background:var(--orange);transition:width .2s}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">✦</div>
+  <div><h1>Fé Acesa</h1><p>Um momento com Deus, todos os dias.</p></div>
+</header>
+<main>
+  <section class="welcome">
+    <small id="today"></small>
+    <h2>Alimente sua fé.<br>Encontre sua paz.</h2>
+    <p class="muted">Desacelere por alguns minutos e dedique este momento à Palavra de Deus.</p>
+  </section>
+  <section class="card">
+    <div class="label">✦ Palavra do dia</div>
+    <div class="verse" id="verse"></div>
+    <div class="reference" id="reference"></div>
+    <p class="muted" id="reflection"></p>
+  </section>
+  <section class="card">
+    <div class="label">♡ Oração do dia</div>
+    <p class="prayer" id="prayer"></p>
+    <button class="secondary" onclick="showPrayer()">Nova oração</button>
+  </section>
+  <section class="card">
+    <div class="label">✧ Frase para guardar</div>
+    <p class="quote" id="quote"></p>
+  </section>
+  <section class="card">
+    <div class="label">Sua jornada de fé</div>
+    <h2 id="count">0 dias</h2>
+    <p class="muted">Marque quando terminar seu momento com Deus.</p>
+    <div class="progress"><div id="bar"></div></div>
+    <button class="primary" id="done" onclick="markDone()">Concluir meu momento de hoje</button>
+    <p class="muted" id="status" aria-live="polite"></p>
+  </section>
+</main>
+<footer>Fé Acesa ✦ Cultive sua fé um dia de cada vez.</footer>
+<script>
+const days=[
+{v:"O Senhor é o meu pastor; nada me faltará.",r:"Salmos 23:1",f:"Confie no cuidado de Deus mesmo quando não souber o que vem pela frente.",p:"Senhor, guia meus passos neste dia. Dá-me sabedoria para escolher o bem, serenidade para enfrentar os desafios e gratidão pelas bênçãos que tantas vezes não percebo. Amém.",q:"Mesmo nos dias difíceis, você pode encontrar esperança em Deus."},
+{v:"Entrega o teu caminho ao Senhor; confia nele, e ele tudo fará.",r:"Salmos 37:5",f:"Entregar o caminho a Deus também é agir com fé, paciência e responsabilidade.",p:"Pai, entrego a Ti minhas preocupações e meus planos. Ajuda-me a fazer o que está ao meu alcance e a confiar em Ti no que não posso controlar. Amém.",q:"A fé não elimina todos os desafios; ela ajuda você a atravessá-los."},
+{v:"Lâmpada para os meus pés é tua palavra e luz, para o meu caminho.",r:"Salmos 119:105",f:"A Palavra pode iluminar a próxima decisão, mesmo quando o caminho inteiro parece incerto.",p:"Deus, ilumina minhas escolhas e ajuda-me a agir com amor, honestidade e sabedoria. Que a Tua Palavra oriente meus pensamentos e atitudes hoje. Amém.",q:"Um passo guiado pela sabedoria vale mais que muitos passos apressados."},
+{v:"Não temas, porque eu sou contigo.",r:"Isaías 41:10",f:"Você não precisa enfrentar cada dificuldade sem buscar apoio e esperança.",p:"Senhor, quando eu sentir medo ou insegurança, lembra-me de procurar Tua presença e também a ajuda de pessoas confiáveis. Renova minhas forças e conduz meu dia. Amém.",q:"Coragem também é continuar, um passo de cada vez."},
+{v:"O coração alegre serve de bom remédio.",r:"Provérbios 17:22",f:"Cuide do seu coração e encontre espaço para agradecer pelas pequenas alegrias.",p:"Pai, ajuda-me a reconhecer as coisas boas deste dia. Ensina-me a tratar as pessoas com gentileza e a levar esperança a quem encontrar. Amém.",q:"Pequenos gestos de amor podem iluminar um dia inteiro."},
+{v:"Aquietai-vos e sabei que eu sou Deus.",r:"Salmos 46:10",f:"Reserve alguns instantes de silêncio para respirar, refletir e orar.",p:"Deus, acalma meus pensamentos. Ajuda-me a diminuir a pressa e a escutar com atenção. Que eu encontre equilíbrio para viver este dia com confiança e bondade. Amém.",q:"Nem toda pausa é atraso; algumas pausas ajudam você a reencontrar o caminho."},
+{v:"Tudo quanto fizerdes, fazei-o de todo o coração.",r:"Colossenses 3:23",f:"Faça o bem que estiver ao seu alcance, com dedicação e humildade.",p:"Senhor, abençoa meu trabalho, meus estudos e minhas responsabilidades. Dá-me disposição para fazer o que é correto, mesmo quando ninguém estiver olhando. Amém.",q:"A fidelidade nas pequenas coisas também tem valor."}
+];
+const prayers=[
+"Senhor, renova minhas forças e ensina-me a agir com paciência. Que minhas palavras transmitam bondade e minhas decisões sejam guiadas pela sabedoria. Amém.",
+"Pai, obrigado por mais um dia. Ajuda-me a reconhecer Tuas bênçãos, enfrentar meus desafios com coragem e tratar cada pessoa com respeito. Amém.",
+"Deus, quando eu não souber o que fazer, ajuda-me a parar, refletir e escolher o caminho do amor e da verdade. Conduz meu coração hoje. Amém.",
+"Senhor, abençoa minha família e as pessoas que precisam de consolo. Ensina-me a oferecer ajuda, ouvir com carinho e ser uma presença de paz. Amém."
+];
+const quotes=[
+"Deus pode renovar sua esperança a cada novo dia.",
+"Continue fazendo o bem, mesmo quando os resultados demorarem.",
+"Um coração agradecido aprende a perceber bênçãos nas pequenas coisas.",
+"A fé cresce quando encontra espaço na vida cotidiana.",
+"Hoje é uma nova oportunidade para agir com amor e sabedoria.",
+"Você não precisa resolver tudo de uma vez; comece pelo próximo passo.",
+"A oração também é um momento para ouvir, refletir e encontrar direção."
+];
+const start=new Date(2026,0,1);
+const now=new Date();
+const dayNumber=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-start)/86400000);
+const idx=((dayNumber%days.length)+days.length)%days.length;
+const dateKey=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+document.getElementById("today").textContent=now.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+document.getElementById("verse").textContent=days[idx].v;
+document.getElementById("reference").textContent=days[idx].r;
+document.getElementById("reflection").textContent=days[idx].f;
+document.getElementById("prayer").textContent=days[idx].p;
+document.getElementById("quote").textContent=quotes[idx];
+function showPrayer(){const old=Number(localStorage.getItem("prayerIndex")||"0");const next=(old+1)%prayers.length;localStorage.setItem("prayerIndex",String(next));document.getElementById("prayer").textContent=prayers[next];}
+function markDone(){localStorage.setItem("faithDone-"+dateKey,"yes");updateProgress();}
+function updateProgress(){const done=localStorage.getItem("faithDone-"+dateKey)==="yes";document.getElementById("done").textContent=done?"Momento concluído ✓":"Concluir meu momento de hoje";document.getElementById("done").disabled=done;document.getElementById("status").textContent=done?"Parabéns por reservar este momento para sua fé.":"";let count=Number(localStorage.getItem("faithCount")||"0");if(done&&!localStorage.getItem("counted-"+dateKey)){count++;localStorage.setItem("faithCount",String(count));localStorage.setItem("counted-"+dateKey,"yes");}document.getElementById("count").textContent=count+(count===1?" dia concluído":" dias concluídos");document.getElementById("bar").style.width=(count%7)/7*100+"%";}
+updateProgress();
+</script>
+</body>
+</html>
